@@ -6,7 +6,7 @@
 
     <groupId>com.tron</groupId>
     <artifactId>tron-legacy-webapp</artifactId>
-    <version>1.0.0-SNAPSHOT</version> <!-- Change to 1.0.0 for release -->
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>war</packaging>
 
     <name>TRON Legacy WebApp</name>
@@ -15,6 +15,10 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- SonarQube Properties -->
+        <sonar.host.url>http://18.208.219.148:9000/</sonar.host.url>
+        <sonar.login>squ_b24a837187f02803e9ba7b3c5c169c7f700c4575</sonar.login>
     </properties>
 
     <dependencies>
@@ -44,11 +48,13 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <version>3.3.2</version>
             </plugin>
+
             <plugin>
                 <groupId>org.sonarsource.scanner.maven</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
