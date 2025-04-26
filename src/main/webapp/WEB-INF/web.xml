@@ -1,6 +1,6 @@
 <web-app xmlns="http://jakarta.ee/xml/ns/jakartaee" version="5.0">
     <display-name>TRON Legacy App</display-name>
     <welcome-file-list>
-        <welcome-file>pages/index.jsp</welcome-file>
+        <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
 </web-app>
