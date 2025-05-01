@@ -28,5 +28,19 @@
     <a href="characters.jsp">Characters</a>
     <a href="vehicles.jsp">Vehicles</a>
     <a href="quotes.jsp">Quotes</a>
+
+    <!-- Audio: The Grid Theme -->
+    <audio id="grid-theme" src="/assets/sounds/the-grid.mp3" preload="auto"></audio>
+
+    <script>
+        window.addEventListener('load', () => {
+            const gridAudio = document.getElementById("grid-theme");
+            gridAudio.volume = 0.5; // Optional: adjust volume
+            gridAudio.play().catch(() => {
+                // Autoplay blocked - wait for user interaction
+                document.addEventListener("click", () => gridAudio.play(), { once: true });
+            });
+        });
+    </script>
 </body>
 </html>
