@@ -9,23 +9,29 @@
             color: #00ffe4;
             font-family: 'Orbitron', sans-serif;
             text-align: center;
-            padding-top: 100px;
-            cursor: pointer;
+            padding-top: 50px;
             margin: 0;
+            min-height: 100vh;
         }
         h1 {
             font-size: 3em;
             text-shadow: 0 0 15px #00ffe4;
             margin-bottom: 30px;
         }
+        .nav-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 40px 0;
+        }
         .nav-link {
-            display: inline-block;
-            margin: 20px;
+            display: block;
             color: #00ffe4;
             text-decoration: none;
             font-size: 1.2em;
             width: 200px;
-            padding: 12px;
+            padding: 15px;
             border: 1px solid #00ffe4;
             border-radius: 4px;
             transition: all 0.3s ease;
@@ -35,82 +41,86 @@
             box-shadow: 0 0 15px #00ffe4;
             transform: scale(1.05);
         }
-        #playPrompt {
-            margin-top: 40px;
-            font-size: 0.9em;
-            opacity: 0.7;
-            animation: pulse 2s infinite;
+        #audio-container {
+            margin: 40px auto;
+            max-width: 300px;
         }
-        @keyframes pulse {
-            0% { opacity: 0.7; }
-            50% { opacity: 1; }
-            100% { opacity: 0.7; }
+        #start-experience {
+            background-color: #00ffe4;
+            color: #0f0f0f;
+            border: none;
+            padding: 12px 25px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin: 20px auto;
+            display: block;
+            transition: all 0.3s ease;
         }
-        .audio-control {
-            margin-top: 30px;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 10px;
-            border-radius: 20px;
-            display: inline-block;
+        #start-experience:hover {
+            box-shadow: 0 0 20px #00ffe4;
+            transform: scale(1.05);
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
-<body onclick="activateAudio()">
+<body>
     <h1>Welcome to the TRON Legacy Web Interface</h1>
     <p>The Grid... A digital frontier...</p>
     
-    <div>
+    <button id="start-experience">ACTIVATE GRID AUDIO</button>
+    
+    <div class="nav-container">
         <a class="nav-link" href="characters.jsp">Characters</a>
         <a class="nav-link" href="vehicles.jsp">Vehicles</a>
         <a class="nav-link" href="quotes.jsp">Quotes</a>
     </div>
 
-    <div id="playPrompt">Click anywhere to activate Grid audio</div>
-    
-    <!-- Audio element with controls as fallback -->
-    <div class="audio-control">
-        <audio id="grid-theme" controls>
+    <div id="audio-container">
+        <audio id="grid-theme" preload="auto">
             <source src="${pageContext.request.contextPath}/sounds/the-grid.mp3" type="audio/mpeg">
             Your browser does not support the audio element.
         </audio>
     </div>
 
     <script>
-        // Hide native controls initially
-        document.getElementById('grid-theme').controls = false;
-        
-        function activateAudio() {
+        document.addEventListener('DOMContentLoaded', function() {
             const gridAudio = document.getElementById("grid-theme");
-            const prompt = document.getElementById("playPrompt");
+            const startButton = document.getElementById("start-experience");
             
-            try {
-                gridAudio.volume = 0.5;
-                gridAudio.play().then(() => {
-                    prompt.style.display = 'none';
-                    // Hide native controls if autoplay succeeds
-                    gridAudio.controls = false;
-                }).catch(e => {
-                    // Show native controls if play fails
-                    gridAudio.controls = true;
-                });
-                
-                document.body.onclick = null;
-                document.body.style.cursor = 'default';
-            } catch (error) {
-                console.error("Audio error:", error);
-                prompt.textContent = "Audio error - use controls below";
-                gridAudio.controls = true;
-            }
-        }
-        
-        // Try autoplay on load (will fail in most browsers without prior interaction)
-        window.addEventListener('load', () => {
-            const gridAudio = document.getElementById("grid-theme");
+            // Set initial volume
             gridAudio.volume = 0.5;
-            gridAudio.play().catch(() => {
-                // Expected to fail - this is normal
+            
+            // Handle audio playback when button is clicked
+            startButton.addEventListener('click', function() {
+                gridAudio.play()
+                    .then(() => {
+                        startButton.style.display = 'none';
+                        // Create volume control
+                        const volumeControl = document.createElement('input');
+                        volumeControl.type = 'range';
+                        volumeControl.min = '0';
+                        volumeControl.max = '1';
+                        volumeControl.step = '0.01';
+                        volumeControl.value = '0.5';
+                        volumeControl.style.marginTop = '20px';
+                        volumeControl.style.width = '200px';
+                        volumeControl.addEventListener('input', function() {
+                            gridAudio.volume = this.value;
+                        });
+                        document.getElementById('audio-container').appendChild(volumeControl);
+                    })
+                    .catch(error => {
+                        console.error("Audio playback failed:", error);
+                        startButton.textContent = "Audio Error - Click to Retry";
+                    });
             });
+            
+            // Enable audio on any page interaction (as fallback)
+            document.body.addEventListener('click', function audioEnable() {
+                gridAudio.play().catch(e => {});
+                document.body.removeEventListener('click', audioEnable);
+            }, { once: true });
         });
     </script>
 </body>
