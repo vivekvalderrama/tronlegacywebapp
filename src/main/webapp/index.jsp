@@ -2,24 +2,23 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>TRON: Legacy | Neural Interface</title>
+    <title>TRON: Legacy | Neural Nexus</title>
     
-    <!-- Three.js + GLTF Loader + Postprocessing -->
+    <!-- Three.js + Advanced Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/postprocessing/EffectComposer.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/shaders/CopyShader.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/postprocessing/RenderPass.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/postprocessing/ShaderPass.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/postprocessing/GlitchPass.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/postprocessing/BloomPass.min.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/shaders/CopyShader.min.js"></script>
+    
     <style>
         :root {
             --tron-blue: #00ffe4;
             --tron-orange: #ff6600;
-            --grid-black: #000;
+            --grid-black: #000000;
         }
         
         body {
@@ -29,10 +28,9 @@
             font-family: 'Orbitron', sans-serif;
             color: var(--tron-blue);
             touch-action: none;
-            user-select: none;
         }
         
-        #canvas-container {
+        #world {
             position: fixed;
             top: 0;
             left: 0;
@@ -41,7 +39,7 @@
             z-index: 0;
         }
         
-        #ui-overlay {
+        #ui {
             position: fixed;
             top: 0;
             left: 0;
@@ -51,65 +49,45 @@
             pointer-events: none;
         }
         
-        .scanline {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(
-                rgba(0, 255, 228, 0.03) 50%,
-                transparent 50%
-            );
-            background-size: 100% 4px;
-            animation: scan 4s linear infinite;
-            z-index: 101;
-        }
-        
-        @keyframes scan {
-            0% { transform: translateY(-100%); }
-            100% { transform: translateY(100%); }
-        }
-        
         #main-title {
             position: absolute;
-            top: 10%;
+            top: 15vh;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 5vw;
-            text-shadow: 0 0 30px var(--tron-blue);
-            animation: titlePulse 3s infinite alternate;
+            font-size: 5rem;
+            text-shadow: 0 0 2rem var(--tron-blue);
             background: linear-gradient(90deg, var(--tron-blue), var(--tron-orange));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            animation: titleGlow 3s infinite alternate;
             pointer-events: auto;
         }
         
-        @keyframes titlePulse {
-            0% { opacity: 0.7; text-shadow: 0 0 20px var(--tron-blue); }
-            100% { opacity: 1; text-shadow: 0 0 50px var(--tron-blue), 0 0 20px var(--tron-orange); }
+        @keyframes titleGlow {
+            0% { opacity: 0.8; text-shadow: 0 0 1rem var(--tron-blue); }
+            100% { opacity: 1; text-shadow: 0 0 3rem var(--tron-blue), 0 0 1rem var(--tron-orange); }
         }
         
-        #grid-menu {
+        .grid-menu {
             position: absolute;
-            bottom: 15%;
+            bottom: 20vh;
             left: 50%;
             transform: translateX(-50%);
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 2vw;
+            gap: 2rem;
             pointer-events: auto;
         }
         
         .grid-btn {
-            padding: 1.5vw 3vw;
-            border: 0.3vw solid var(--tron-blue);
+            padding: 1.5rem 3rem;
+            border: 0.3rem solid var(--tron-blue);
             color: var(--tron-blue);
-            font-size: 1.5vw;
+            font-size: 1.5rem;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.7);
             clip-path: polygon(
                 0% 15%, 15% 15%, 15% 0%, 85% 0%, 
                 85% 15%, 100% 15%, 100% 85%, 
@@ -119,23 +97,23 @@
         }
         
         .grid-btn:hover {
-            background: rgba(0, 255, 228, 0.2);
-            box-shadow: 0 0 30px var(--tron-blue);
-            transform: translateY(-1vw);
+            background: rgba(0, 255, 228, 0.3);
+            box-shadow: 0 0 3rem var(--tron-blue);
+            transform: translateY(-0.5rem);
             border-color: var(--tron-orange);
             color: white;
         }
         
         #identity-disc {
             position: absolute;
-            bottom: 5%;
-            right: 5%;
-            width: 8vw;
-            height: 8vw;
-            background: url('https://i.imgur.com/8mRfzqK.png') center/contain no-repeat;
+            bottom: 5vh;
+            right: 5vw;
+            width: 8rem;
+            height: 8rem;
+            background: url('${pageContext.request.contextPath}/assets/images/disc.png') center/contain no-repeat;
             cursor: pointer;
             transition: all 0.5s;
-            filter: drop-shadow(0 0 15px var(--tron-blue));
+            filter: drop-shadow(0 0 1.5rem var(--tron-blue));
             pointer-events: auto;
             animation: discRotate 20s linear infinite;
         }
@@ -147,65 +125,65 @@
         
         #light-cycle {
             position: absolute;
-            bottom: 5%;
-            left: 5%;
-            width: 20vw;
-            height: 10vw;
-            background: url('https://i.imgur.com/JqYe6Zn.png') center/contain no-repeat;
-            filter: drop-shadow(0 0 20px var(--tron-blue));
+            bottom: 5vh;
+            left: 5vw;
+            width: 20rem;
+            height: 10rem;
+            background: url('${pageContext.request.contextPath}/assets/images/cycle.png') center/contain no-repeat;
+            filter: drop-shadow(0 0 2rem var(--tron-blue));
             pointer-events: none;
             animation: cycleFloat 3s ease-in-out infinite;
         }
         
         @keyframes cycleFloat {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-1vw); }
+            50% { transform: translateY(-1rem); }
         }
         
-        #audio-visualizer {
+        .scanlines {
             position: absolute;
-            bottom: 20%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60vw;
-            height: 5vw;
-            display: flex;
-            justify-content: center;
-            gap: 0.5vw;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 255, 228, 0.05),
+                rgba(0, 255, 228, 0.05) 1px,
+                transparent 1px,
+                transparent 3px
+            );
+            pointer-events: none;
+            z-index: 101;
         }
         
-        .audio-bar {
-            width: 0.8vw;
-            background: linear-gradient(to top, var(--tron-blue), var(--tron-orange));
-            border-radius: 0.5vw;
-            animation: equalizer 1s infinite alternate;
-            transform-origin: bottom;
-        }
-        
-        @keyframes equalizer {
-            0% { transform: scaleY(0.3); opacity: 0.5; }
-            100% { transform: scaleY(1); opacity: 1; }
+        #voice-status {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            font-size: 1rem;
+            color: var(--tron-orange);
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- 3D Container -->
-    <div id="canvas-container"></div>
+    <!-- 3D World Container -->
+    <div id="world"></div>
     
     <!-- UI Overlay -->
-    <div id="ui-overlay">
-        <div class="scanline"></div>
+    <div id="ui">
+        <div class="scanlines"></div>
         <h1 id="main-title">TRON: LEGACY</h1>
+        <div id="voice-status">VOICE: DISABLED</div>
         
-        <div id="grid-menu">
-            <div class="grid-btn" onclick="window.location.href='map.jsp'">GRID MAP</div>
-            <div class="grid-btn" onclick="window.location.href='vehicles.jsp'">LIGHT CYCLES</div>
-            <div class="grid-btn" onclick="window.location.href='characters.jsp'">PROGRAMS</div>
-            <div class="grid-btn" onclick="window.location.href='quotes.jsp'">DIRECTIVES</div>
+        <div class="grid-menu">
+            <div class="grid-btn" onclick="navigate('map.jsp')">GRID MAP</div>
+            <div class="grid-btn" onclick="navigate('vehicles.jsp')">LIGHT CYCLES</div>
+            <div class="grid-btn" onclick="navigate('characters.jsp')">PROGRAMS</div>
+            <div class="grid-btn" onclick="navigate('quotes.jsp')">DIRECTIVES</div>
         </div>
         
-        <div id="audio-visualizer"></div>
         <div id="light-cycle"></div>
         <div id="identity-disc" title="User Identity"></div>
     </div>
@@ -216,8 +194,7 @@
     </audio>
     
     <script>
-        // ========== 3D WORLD ==========
-        const container = document.getElementById('canvas-container');
+        // ========== 3D WORLD INIT ==========
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x000000);
         scene.fog = new THREE.FogExp2(0x000000, 0.002);
@@ -229,7 +206,7 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.shadowMap.enabled = true;
-        container.appendChild(renderer.domElement);
+        document.getElementById('world').appendChild(renderer.domElement);
         
         // Postprocessing
         const composer = new THREE.EffectComposer(renderer);
@@ -240,77 +217,98 @@
         composer.addPass(bloomPass);
         
         // Grid Floor
-        const gridSize = 100;
-        const gridDivisions = 100;
-        const grid = new THREE.GridHelper(gridSize, gridDivisions, 0x00ffe4, 0x00ffe4);
+        const grid = new THREE.GridHelper(100, 100, 0x00ffe4, 0x00ffe4);
         grid.material.opacity = 0.2;
         grid.material.transparent = true;
         scene.add(grid);
         
-        // City Towers
-        const towerGeometry = new THREE.BoxGeometry(1, 10, 1);
-        const towerMaterial = new THREE.MeshBasicMaterial({ 
+        // Cityscape
+        const geometry = new THREE.BoxGeometry(1, 1, 1);
+        const material = new THREE.MeshBasicMaterial({ 
             color: 0x00ffe4,
             wireframe: true,
             transparent: true,
             opacity: 0.7
         });
         
-        for (let i = 0; i < 50; i++) {
-            const tower = new THREE.Mesh(towerGeometry, towerMaterial);
-            tower.position.x = (Math.random() - 0.5) * 80;
-            tower.position.z = (Math.random() - 0.5) * 80;
-            tower.position.y = 5;
-            tower.scale.y = Math.random() * 3 + 1;
-            scene.add(tower);
+        for (let i = 0; i < 100; i++) {
+            const cube = new THREE.Mesh(geometry, material);
+            cube.position.x = (Math.random() - 0.5) * 200;
+            cube.position.z = (Math.random() - 0.5) * 200;
+            cube.position.y = Math.random() * 10;
+            cube.scale.set(
+                Math.random() * 3 + 1,
+                Math.random() * 10 + 5,
+                Math.random() * 3 + 1
+            );
+            scene.add(cube);
         }
         
-        // Flying Light Cycle
-        const lightCycleGeometry = new THREE.ConeGeometry(0.5, 2, 4);
-        const lightCycleMaterial = new THREE.MeshBasicMaterial({ 
-            color: 0x00ffe4,
-            wireframe: true
-        });
-        const lightCycle = new THREE.Mesh(lightCycleGeometry, lightCycleMaterial);
+        // Light Cycle Model
+        const lightCycle = new THREE.Mesh(
+            new THREE.ConeGeometry(0.5, 2, 4),
+            new THREE.MeshBasicMaterial({ 
+                color: 0x00ffe4,
+                wireframe: true
+            })
+        );
         lightCycle.position.set(0, 3, 0);
         lightCycle.rotation.x = Math.PI / 2;
         scene.add(lightCycle);
         
-        // Animated Rings
-        const ringGeometry = new THREE.TorusGeometry(5, 0.1, 16, 100);
-        const ringMaterial = new THREE.MeshBasicMaterial({ 
-            color: 0x00ffe4,
-            wireframe: true,
-            transparent: true,
-            opacity: 0.7
-        });
-        const rings = [];
-        
-        for (let i = 0; i < 5; i++) {
-            const ring = new THREE.Mesh(ringGeometry, ringMaterial);
-            ring.position.y = i * 3;
-            ring.rotation.x = Math.PI / 2;
-            scene.add(ring);
-            rings.push(ring);
+        // ========== INTERACTIVE ELEMENTS ==========
+        // Voice Recognition
+        function initVoiceControl() {
+            if ('webkitSpeechRecognition' in window) {
+                const recognition = new webkitSpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                
+                recognition.onstart = () => {
+                    document.getElementById('voice-status').textContent = "VOICE: ACTIVE";
+                    document.getElementById('voice-status').style.color = "#00ff00";
+                };
+                
+                recognition.onresult = (event) => {
+                    const transcript = Array.from(event.results)
+                        .map(result => result[0].transcript)
+                        .join('');
+                    
+                    if (transcript.includes("map")) navigate('map.jsp');
+                    if (transcript.includes("light cycle")) navigate('vehicles.jsp');
+                    if (transcript.includes("program")) navigate('characters.jsp');
+                    if (transcript.includes("directive")) navigate('quotes.jsp');
+                };
+                
+                recognition.onerror = () => {
+                    document.getElementById('voice-status').textContent = "VOICE: ERROR";
+                    document.getElementById('voice-status').style.color = "#ff0000";
+                };
+                
+                recognition.start();
+            }
         }
         
-        // ========== UI ELEMENTS ==========
-        // Audio Visualizer
-        const visualizer = document.getElementById('audio-visualizer');
-        for (let i = 0; i < 50; i++) {
-            const bar = document.createElement('div');
-            bar.className = 'audio-bar';
-            bar.style.animationDelay = `${i * 0.02}s`;
-            visualizer.appendChild(bar);
+        // Navigation with Haptic Feedback
+        function navigate(page) {
+            if ('vibrate' in navigator) {
+                navigator.vibrate([100, 50, 100]);
+            }
+            window.location.href = page;
         }
         
         // Identity Disc Interaction
         document.getElementById('identity-disc').addEventListener('click', () => {
             const disc = document.getElementById('identity-disc');
-            disc.style.filter = 'drop-shadow(0 0 30px var(--tron-orange))';
+            disc.style.filter = 'drop-shadow(0 0 3rem var(--tron-orange))';
             setTimeout(() => {
-                disc.style.filter = 'drop-shadow(0 0 15px var(--tron-blue))';
+                disc.style.filter = 'drop-shadow(0 0 1.5rem var(--tron-blue))';
             }, 1000);
+            
+            // Toggle voice control
+            if (document.getElementById('voice-status').textContent.includes("DISABLED")) {
+                initVoiceControl();
+            }
         });
         
         // ========== ANIMATION LOOP ==========
@@ -318,36 +316,29 @@
             requestAnimationFrame(animate);
             
             // Camera movement
-            camera.position.x = Math.sin(Date.now() * 0.0005) * 10;
-            camera.position.z = Math.cos(Date.now() * 0.0005) * 10;
+            camera.position.x = Math.sin(Date.now() * 0.0005) * 20;
+            camera.position.z = Math.cos(Date.now() * 0.0005) * 20;
             camera.lookAt(0, 0, 0);
             
             // Light Cycle animation
-            lightCycle.position.x = Math.sin(Date.now() * 0.001) * 20;
-            lightCycle.position.z = Math.cos(Date.now() * 0.001) * 20;
+            lightCycle.position.x = Math.sin(Date.now() * 0.001) * 30;
+            lightCycle.position.z = Math.cos(Date.now() * 0.0015) * 30;
             lightCycle.rotation.z = Date.now() * 0.001;
-            
-            // Ring animations
-            rings.forEach((ring, i) => {
-                ring.rotation.z = Date.now() * 0.0005 * (i + 1);
-                ring.scale.setScalar(1 + Math.sin(Date.now() * 0.001 + i) * 0.2);
-            });
             
             composer.render();
         }
         
         animate();
         
-        // ========== AUDIO SYSTEM ==========
-        const audio = document.getElementById('grid-theme');
-        audio.volume = 0.3;
-        
-        // Auto-play with interaction
+        // ========== SYSTEM INIT ==========
+        // Auto-play audio on interaction
         document.addEventListener('click', () => {
+            const audio = document.getElementById('grid-theme');
+            audio.volume = 0.3;
             audio.play().catch(e => console.log("Audio requires interaction"));
         }, { once: true });
         
-        // Responsive handling
+        // Handle window resize
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
