@@ -89,23 +89,10 @@
             width: 100%;
             accent-color: var(--tron-blue);
         }
-        .grid-line {
-            position: fixed;
-            background: rgba(0, 255, 228, 0.05);
-            height: 1px;
-            width: 100vw;
-            left: 0;
-            z-index: -1;
-        }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Animated grid lines -->
-    <% for(int i=0; i<20; i++) { %>
-        <div class="grid-line" style="top:<%= i*5 %>vh;"></div>
-    <% } %>
-    
     <h1>GRID ONLINE</h1>
     <p>YOUR SYSTEM IS OPERATIONAL</p>
     
