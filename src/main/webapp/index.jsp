@@ -2,179 +2,192 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>TRON Legacy | Grid Online</title>
+    <title>TRON Legacy | Grid 3.0</title>
+    
+    <!-- Three.js for 3D Effects -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
+    
     <style>
         :root {
             --tron-blue: #00ffe4;
             --grid-black: #0f0f0f;
         }
+        
         body {
-            background-color: var(--grid-black);
-            color: var(--tron-blue);
-            font-family: 'Orbitron', sans-serif;
-            text-align: center;
-            padding: 50px 20px;
             margin: 0;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-        h1 {
-            font-size: 3em;
-            text-shadow: 0 0 15px var(--tron-blue);
-            margin-bottom: 20px;
-            animation: pulse 2s infinite alternate;
-        }
-        @keyframes pulse {
-            from { text-shadow: 0 0 10px var(--tron-blue); }
-            to { text-shadow: 0 0 25px var(--tron-blue); }
-        }
-        #audio-init {
-            background: var(--tron-blue);
-            color: var(--grid-black);
-            border: none;
-            padding: 15px 30px;
-            font-family: inherit;
-            font-size: 1.2em;
-            margin: 30px auto;
-            cursor: pointer;
-            display: block;
-            border-radius: 4px;
-            transition: all 0.3s ease;
-            position: relative;
             overflow: hidden;
-        }
-        #audio-init:hover {
-            box-shadow: 0 0 20px var(--tron-blue);
-            transform: scale(1.05);
-        }
-        .nav-container {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 20px;
-            margin: 40px auto;
-            max-width: 800px;
-        }
-        .nav-link {
-            display: block;
+            font-family: 'Orbitron', sans-serif;
             color: var(--tron-blue);
-            text-decoration: none;
-            border: 1px solid var(--tron-blue);
-            padding: 15px;
-            margin: 0;
-            width: 180px;
-            transition: all 0.3s ease;
-            position: relative;
         }
-        .nav-link:hover {
-            background: rgba(0, 255, 228, 0.1);
-            box-shadow: 0 0 15px var(--tron-blue);
-        }
-        .nav-link::before {
-            content: '>';
-            position: absolute;
-            left: 10px;
-            opacity: 0;
-            transition: all 0.3s ease;
-        }
-        .nav-link:hover::before {
-            opacity: 1;
-            left: 15px;
-        }
-        #volume-container {
-            margin: 40px auto;
-            width: 200px;
-        }
-        #volume-control {
-            width: 100%;
-            accent-color: var(--tron-blue);
-        }
-        .grid-line {
+        
+        #canvas3d {
             position: fixed;
-            background: rgba(0, 255, 228, 0.05);
-            height: 1px;
-            width: 100vw;
+            top: 0;
             left: 0;
             z-index: -1;
         }
+        
+        #ui-container {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding-top: 5vh;
+        }
+        
+        h1 {
+            font-size: 3em;
+            text-shadow: 0 0 20px var(--tron-blue);
+            animation: pulse 2s infinite alternate;
+        }
+        
+        @keyframes pulse {
+            from { text-shadow: 0 0 10px var(--tron-blue); }
+            to { text-shadow: 0 0 30px var(--tron-blue); }
+        }
+        
+        .nav-btn {
+            display: inline-block;
+            margin: 20px;
+            padding: 15px 30px;
+            border: 2px solid var(--tron-blue);
+            color: var(--tron-blue);
+            text-decoration: none;
+            font-size: 1.2em;
+            transition: all 0.3s;
+        }
+        
+        .nav-btn:hover {
+            background: rgba(0, 255, 228, 0.2);
+            box-shadow: 0 0 25px var(--tron-blue);
+            transform: translateY(-5px);
+        }
+        
+        #light-cycle-model {
+            position: fixed;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 150px;
+            background: url('https://i.imgur.com/JqYe6Zn.png') no-repeat center;
+            background-size: contain;
+            filter: drop-shadow(0 0 15px var(--tron-blue));
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-20px); }
+        }
+        
+        #identity-disc {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: url('https://i.imgur.com/8mRfzqK.png') no-repeat center;
+            background-size: contain;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        #identity-disc:hover {
+            transform: scale(1.2) rotate(30deg);
+            filter: drop-shadow(0 0 10px var(--tron-blue));
+        }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Animated grid lines -->
-    <% for(int i=0; i<20; i++) { %>
-        <div class="grid-line" style="top:<%= i*5 %>vh;"></div>
-    <% } %>
+    <!-- 3D Canvas -->
+    <canvas id="canvas3d"></canvas>
     
-    <h1>GRID ONLINE</h1>
-    <p>YOUR SYSTEM IS OPERATIONAL</p>
-    
-    <button id="audio-init">ENGAGE AUDIO PROTOCOL</button>
-    
-    <div class="nav-container">
-        <a class="nav-link" href="characters.jsp">
-            <span>USER PROGRAMS</span>
-        </a>
-        <a class="nav-link" href="vehicles.jsp">
-            <span>LIGHT CYCLE GARAGE</span>
-        </a>
-        <a class="nav-link" href="quotes.jsp">
-            <span>SYSLOG ARCHIVES</span>
-        </a>
-        <a class="nav-link" href="map.jsp">
-            <span>GRID TOPOGRAPHY</span>
-        </a>
+    <!-- UI Container -->
+    <div id="ui-container">
+        <h1>TRON GRID 3.0</h1>
+        <p>SYSTEM STATUS: <span style="color:#00ff00;">ONLINE</span></p>
+        
+        <div>
+            <a class="nav-btn" href="characters.jsp">PROGRAMS</a>
+            <a class="nav-btn" href="vehicles.jsp">LIGHT CYCLES</a>
+            <a class="nav-btn" href="map.jsp">GRID MAP</a>
+            <a class="nav-btn" href="quotes.jsp">DIRECTIVES</a>
+        </div>
+        
+        <!-- 3D Light Cycle Model -->
+        <div id="light-cycle-model"></div>
+        
+        <!-- Identity Disc -->
+        <div id="identity-disc" title="User Identity"></div>
     </div>
     
-    <div id="volume-container">
-        <input type="range" id="volume-control" min="0" max="1" step="0.01" value="0.5">
-        <div>AUDIO MODULATION</div>
-    </div>
-    
-    <audio id="grid-theme" preload="auto">
+    <!-- Audio -->
+    <audio id="grid-theme" loop>
         <source src="${pageContext.request.contextPath}/assets/sounds/the-grid.mp3" type="audio/mpeg">
     </audio>
-
+    
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const audio = document.getElementById('grid-theme');
-            const initBtn = document.getElementById('audio-init');
-            const volumeControl = document.getElementById('volume-control');
-            
-            // Set initial volume
-            audio.volume = 0.5;
-            
-            // Audio initialization
-            initBtn.addEventListener('click', function() {
-                audio.play()
-                    .then(() => {
-                        initBtn.innerHTML = "AUDIO ONLINE <span style='display:block;font-size:0.6em;'>PULSE: 128kbps</span>";
-                        initBtn.style.background = "var(--grid-black)";
-                        initBtn.style.color = "var(--tron-blue)";
-                        initBtn.style.border = "1px solid var(--tron-blue)";
-                        initBtn.style.padding = "10px 30px";
-                        initBtn.style.cursor = "default";
-                        initBtn.style.transform = "none";
-                        initBtn.style.boxShadow = "0 0 10px var(--tron-blue)";
-                        initBtn.onmouseenter = null;
-                        initBtn.onmouseleave = null;
-                        initBtn.removeAttribute('id');
-                    })
-                    .catch(error => {
-                        initBtn.textContent = "CLICK TO RETRY";
-                        console.error("Audio error:", error);
-                    });
-            });
-            
-            // Volume control
-            volumeControl.addEventListener('input', function() {
-                audio.volume = this.value;
-            });
-            
-            // Fallback: Enable audio on any click
-            document.body.addEventListener('click', function() {
-                audio.play().catch(e => {});
-            }, { once: true });
+        // ===== 3D GRID RENDER =====
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas3d'), alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        
+        // Grid Floor
+        const grid = new THREE.GridHelper(100, 100, 0x00ffe4, 0x00ffe4);
+        grid.material.opacity = 0.2;
+        grid.material.transparent = true;
+        scene.add(grid);
+        
+        // Floating Cubes (TRON Buildings)
+        for (let i = 0; i < 20; i++) {
+            const size = Math.random() * 3 + 1;
+            const cube = new THREE.Mesh(
+                new THREE.BoxGeometry(size, size * 5, size),
+                new THREE.MeshBasicMaterial({ 
+                    color: 0x00ffe4,
+                    wireframe: true,
+                    transparent: true,
+                    opacity: 0.7
+                })
+            );
+            cube.position.x = (Math.random() - 0.5) * 100;
+            cube.position.z = (Math.random() - 0.5) * 100;
+            cube.position.y = size * 2.5;
+            scene.add(cube);
+        }
+        
+        camera.position.set(0, 30, 50);
+        camera.lookAt(0, 0, 0);
+        
+        // Animation Loop
+        function animate() {
+            requestAnimationFrame(animate);
+            scene.rotation.y += 0.002;
+            renderer.render(scene, camera);
+        }
+        animate();
+        
+        // ===== INTERACTIVE ELEMENTS =====
+        document.getElementById('identity-disc').addEventListener('click', () => {
+            alert("USER IDENTITY VERIFIED\nACCESS LEVEL: ADMIN");
+        });
+        
+        // Audio Controls
+        const audio = document.getElementById('grid-theme');
+        audio.volume = 0.3;
+        
+        document.addEventListener('click', () => {
+            audio.play().catch(e => console.log("Audio requires interaction"));
+        }, { once: true });
+        
+        // Responsive Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
         });
     </script>
 </body>
