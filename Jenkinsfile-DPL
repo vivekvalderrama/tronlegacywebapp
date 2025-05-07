@@ -48,12 +48,21 @@ pipeline {
     }
   }
 
-  post {
+   post {
     success {
-      slackSend (channel: '#disney-om', color: 'good', message: "✅ *SUCCESS*: TRON Legacy app deployed successfully by ${env.BUILD_USER} in Job: ${env.JOB_NAME} #${env.BUILD_NUMBER}")
+      wrap([$class: 'BuildUser']) {
+        slackSend(channel: '#disney-om', color: 'good',
+          message: "✅ SUCCESS: Job '${env.JOB_NAME}' [#${env.BUILD_NUMBER}] by ${env.BUILD_USER} was successful. ${env.BUILD_URL}")
+      }
     }
     failure {
-      slackSend (channel: '#disney-om', color: 'danger', message: "❌ *FAILURE*: TRON Legacy deployment failed in Job: ${env.JOB_NAME} #${env.BUILD_NUMBER}")
+      wrap([$class: 'BuildUser']) {
+        slackSend(channel: '#disney-om', color: 'danger',
+          message: "❌ FAILURE: Job '${env.JOB_NAME}' [#${env.BUILD_NUMBER}] by ${env.BUILD_USER} failed. ${env.BUILD_URL}")
+      }
+    }
+    always {
+      echo "Build finished with status: ${currentBuild.currentResult}"
     }
   }
 }
