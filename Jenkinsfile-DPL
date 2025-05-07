@@ -40,7 +40,7 @@ pipeline {
       steps {
         echo "Deploying WAR file using curl..."
         sh """
-          curl -u admin:vivek123 \
+          curl -u vivek:vivek123 \
           --upload-file /var/lib/jenkins/workspace/disney-declarative-pipleline-dev/target/tron-legacy.war \
           "http://54.83.14.110:8080/manager/text/deploy?path=/tronlegacywebapp&update=true"
         """
