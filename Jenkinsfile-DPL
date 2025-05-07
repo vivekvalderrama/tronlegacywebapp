@@ -1,0 +1,59 @@
+pipeline {
+  agent any
+
+  tools {
+    maven "maven"
+  }
+
+  stages {
+    stage('checkout') {
+      steps {
+        git branch: 'development', credentialsId: 'fd22124d-d6df-4124-b3b5-ebd921a2542e', url: 'https://github.com/vivekvalderrama/tronlegacywebapp.git'
+      }
+    }
+
+    stage('COMPILE') {
+      steps {
+        sh "mvn clean compile"
+      }
+    }
+
+    stage('BUILD') {
+      steps {
+        sh "mvn clean package"
+      }
+    }
+
+    stage('SQ REPORT') {
+      steps {
+        sh "mvn clean sonar:sonar"
+      }
+    }
+
+    stage('Deploy to Nexus') {
+      steps {
+        sh "mvn clean deploy"
+      }
+    }
+
+    stage('Deploy App') {
+      steps {
+        echo "Deploying WAR file using curl..."
+        sh """
+          curl -u admin:vivek123 \
+          --upload-file /var/lib/jenkins/workspace/disney-scripted-pipleline-dev/target/tron-legacy.war \
+          "http://54.83.14.110:8080/manager/text/deploy?path=/tronlegacywebapp&update=true"
+        """
+      }
+    }
+  }
+
+  post {
+    success {
+      slackSend (channel: '#disney-om', color: 'good', message: "✅ *SUCCESS*: TRON Legacy app deployed successfully by ${env.BUILD_USER} in Job: ${env.JOB_NAME} #${env.BUILD_NUMBER}")
+    }
+    failure {
+      slackSend (channel: '#disney-om', color: 'danger', message: "❌ *FAILURE*: TRON Legacy deployment failed in Job: ${env.JOB_NAME} #${env.BUILD_NUMBER}")
+    }
+  }
+}
