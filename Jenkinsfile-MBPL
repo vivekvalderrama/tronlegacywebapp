@@ -43,7 +43,7 @@ pipeline {
         echo "Deploying WAR file using curl..."
         sh """
           curl -u vivek:vivek123 \
-          --upload-file /var/lib/jenkins/workspace/MBPL-disney/target/tron-legacy.war \
+          --upload-file /var/lib/jenkins/workspace/MBPL-Disney/target/tron-legacy.war \
           "http://54.83.14.110:8080/manager/text/deploy?path=/tronlegacywebapp&update=true"
         """
       }
